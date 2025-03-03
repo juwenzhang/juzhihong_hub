@@ -1,0 +1,32 @@
+{
+  "name": "juwenzhang_hub",
+  "version": "1.0.0",
+  "description": "nodejs",
+  "keywords": [
+    "nodejs",
+    "juwenzhang",
+    "jzh",
+    "juzhihong",
+    "juwenzhang_hub",
+    "jzh_hub",
+    "juzhihong_hub"
+  ],
+  "license": "MIT",
+  "author": "juwenzhang",
+  "type": "commonjs",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./src/main.js"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "@koa/router": "^13.1.0",
+    "koa": "^2.16.0",
+    "koa-bodyparser": "^4.4.1",
+    "mysql2": "^3.12.0"
+  }
+}
