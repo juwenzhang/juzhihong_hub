@@ -27,27 +27,58 @@ const connectionPool = require('../middlewares/mysql.middleware');
 class UserService {
     constructor() {
         // use strategy pattern
-        this.statement = {
+        this.__statement = {
             create_table: `
                 CREATE TABLE IF NOT EXISTS user (
-                    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                    name VARCHAR(20) NOT NULL UNIQUE,
-                    password VARCHAR(20) NOT NULL,
-                    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                    id BIGINT PRIMARY KEY AUTO_INCREMENT,  
+                    name VARCHAR(20) NOT NULL UNIQUE,  
+                    password VARCHAR(255) NOT NULL,  
+                    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+                    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
                 );
             `,
+            insert: `
+                INSERT INTO user (name, password) VALUES (?, ?);
+            `,
+            find_by_name: `
+                SELECT * FROM user WHERE name = ?;
+            `
         }
+        // create user table to ensure the table exists
+        this.__createTable()
     }
 
     // create table method
     __createTable() {
-        connectionPool.execute(this.statement.create_table)
+        try {
+            connectionPool.execute(this.__statement.create_table)
+        } catch (error) {
+            console.log(error)
+        }
     }
 
-    create(user) {
-        // create user table to ensure the table exists
-        this.__createTable()
+    // create user method
+    async create(user) {
+        const { name, password } = user;
+        try {
+            const [res] = await connectionPool.execute(this.__statement.insert, [name, password])
+            return res;
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    }
+
+    // find user by name method
+    async findByName(name) {
+        // select * from user where name = ? will return [values, fields], so we need to return values
+        try {
+            const [res] = await connectionPool.execute(this.__statement.find_by_name, [name])
+            return res;
+        } catch (error) {
+            console.log(error)
+            return null
+        }
     }
 }
 

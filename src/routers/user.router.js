@@ -25,12 +25,38 @@
 // import-dependencies part
 const KoaRouter = require('@koa/router');
 const userController = require('../controllers/user.controller');
+const {
+    userMiddlewareValidate,  // to ensure the user info has
+    userInfoHasAllFieldsMiddleware,  // to ensure the user info has all fields
+    userInfoHasExistedInDbMiddleware,  // to ensure the user info has not existed in db
+    userPasswordHandleLengthMiddleware,  // to ensure the user password has length
+    userPasswordHandleFormatMiddleware,  // to ensure the user password has format
+    userPasswordHandleStrengthMiddleware,  // to ensure the user password has strength
+    userIsInDbMiddleware  // to ensure the user info has existed in db
+} = require('../middlewares/user.middleware');
 
 // define-router part
 const UserRouter = new KoaRouter({prefix: '/user'});
 
 // define-router-api part
-UserRouter.post('/register', userController.create)
+UserRouter.post(
+    '/register',
+    userMiddlewareValidate,
+    userInfoHasAllFieldsMiddleware,
+    userInfoHasExistedInDbMiddleware,
+    userPasswordHandleLengthMiddleware,
+    userPasswordHandleFormatMiddleware,
+    userPasswordHandleStrengthMiddleware,
+    userController.create  // create user
+)
+UserRouter.post(
+    '/login',
+    // if has two password to validate, this func give client-side to handle
+    userMiddlewareValidate,
+    userInfoHasAllFieldsMiddleware,
+    userIsInDbMiddleware,
+    userController.login  // login user
+)
 
 // export-router part
 module.exports = UserRouter;

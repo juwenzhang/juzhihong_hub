@@ -22,20 +22,16 @@
  * SOFTWARE.
  */
 
-// import-dependencies part
-const dotenv = require('dotenv')
+const bcrypt = require("bcryptjs");
 
-// server
-const config = dotenv.config().parsed
-
-// server-config
-const SERVER_PORT = config.SERVER_PORT
-const SERVER_HOST = config.SERVER_HOST
-const SERVER_URL = config.SERVER_URL
-
-// export-config part
-module.exports = {
-  SERVER_PORT,
-  SERVER_HOST,
-  SERVER_URL
+/**
+ * @description save pwd after strength pwd
+ * @param {string} pwd pwd from client
+ * @returns {string} strength pwd
+ */
+function strengthPwdUtil(pwd) {
+    const salt = bcrypt.genSaltSync(10);
+    return bcrypt.hashSync(pwd, salt);
 }
+
+module.exports = strengthPwdUtil

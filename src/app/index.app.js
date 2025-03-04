@@ -26,7 +26,6 @@
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const { routers } = require('../routers/index.router')
-const { SERVER_PORT } = require("../config/server.config")
 const { RegisterRoutesUtil } = require("../utils/router.util")
 
 // init-part
@@ -39,7 +38,4 @@ app.use(bodyParser())
 RegisterRoutesUtil(app, routers)
 
 // export-part
-module.exports = {
-    app,
-    SERVER_PORT
-}
+module.exports = app

@@ -8,6 +8,9 @@
   * dotenv -- 配置文件依赖
     * const SERVER_PORT = dotenv.config().parsed.SERVER_PORT
   * mysql2 -- 数据库依赖
+  * bcryptjs -- 密码加密依赖
+  * koa-session -- session依赖
+  * jsonwebtoken -- jwt依赖
 
 ### 结构划分
 * 结构划分能够细粒度就尽量细粒度的实现吧，该思想主要是学习了线代的开发模式吧，插件化的思想
@@ -28,8 +31,14 @@
 >   * user.service.js -- 用户服务
 > * middlewares
 >   * mysql.middleware.js -- mysql 中间件
+>   * user.middleware.js -- 用户中间件
 > * utils
 >   * router.util.js -- 路由工具
+>   * handleError.util.js -- 错误处理工具
+>   * strengthPwd.util.js -- 密码加密工具
+>   * matchPwd.util.js -- 密码匹配工具
+> * constant
+>   * app.constant.js -- 应用常量
 
 ### 期望
 * 本来想集成 ts 的，但是由于 ts 代码的书写是代码的设计先于代码的实现，相当于多了一步代码设计的一步

@@ -23,16 +23,43 @@
  */
 
 const userService = require('../services/user.service');
+const matchPwdUtil = require('../utils/matchPwd.util');
+const {UserErrorMessages} = require("../constant/app.constant");
 
 class UserController {
-    create(ctx, next) {
-        const user = ctx.request.body;
-        userService.create(user)
+    async create(ctx, next) {
+        // get user info from ctx middleware
+        const user = ctx.userInfo;
+        // create user, save to db
+        const res = await userService.create(user)
         ctx.body = {
             code: 0,
             msg: 'success',
             status: 200,
-            desc: "用户创建成功"
+            ok: true,
+            desc: "用户创建成功",
+            data: res
+        }
+    }
+
+    async login(ctx, next){
+        // get user info from ctx middleware, this data from client-side-request
+        const userInfo = ctx.userInfo
+        const dbUser = ctx.dbUser
+        console.log(userInfo, dbUser)
+        if (matchPwdUtil(userInfo.password, dbUser.password)) {
+            ctx.body = {
+                code: 0,
+                msg: 'success',
+                status: 200,
+                ok: matchPwdUtil(userInfo.password, dbUser.password),
+                desc: "用户登录成功",
+                data: {
+                    token: 'token'
+                }
+            }
+        } else {
+            ctx.app.emit("error", UserErrorMessages.USER_PASSWORD_IS_INCORRECT, ctx)
         }
     }
 }

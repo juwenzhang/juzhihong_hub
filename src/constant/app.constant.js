@@ -22,20 +22,16 @@
  * SOFTWARE.
  */
 
-// import-dependencies part
-const dotenv = require('dotenv')
+// user part
+const UserErrorMessages = {
+    NAME_OR_PASSWORD_IS_REQUIRED: "name_or_password_is_required",
+    USER_ALREADY_EXISTS: "user_already_exists",
+    PASSWORD_LENGTH_IS_TOO_SHORT: "password_length_is_too_short",
+    PASSWORD_IS_NOT_STRONG: "password_is_not_strong",
+    USER_INFO_NOT_EXIST: "user_info_not_exist",
+    USER_PASSWORD_IS_INCORRECT: "user_password_is_incorrect"
+}
 
-// server
-const config = dotenv.config().parsed
-
-// server-config
-const SERVER_PORT = config.SERVER_PORT
-const SERVER_HOST = config.SERVER_HOST
-const SERVER_URL = config.SERVER_URL
-
-// export-config part
 module.exports = {
-  SERVER_PORT,
-  SERVER_HOST,
-  SERVER_URL
+    UserErrorMessages
 }

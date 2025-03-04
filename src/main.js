@@ -23,9 +23,13 @@
  */
 
 // import-part
-const { app, SERVER_PORT } = require('./app/index.app')
+const app = require('./app/index.app')
+const { SERVER_PORT, SERVER_URL } = require("./config/server.config")
+
+// error-handle-part
+require('./utils/handleError.util')
 
 // start-server-part
 app.listen(SERVER_PORT, () => {
-    console.log("koa server has started successfully")
+    console.log("koa server has started successfully, access url is: " + SERVER_URL)
 })
