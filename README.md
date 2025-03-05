@@ -1,51 +1,232 @@
-## Juwenzhang_hub
-### used dependencies
-* 主要使用的第三方依赖包
-  * koa  -- koa框架依赖
-  * @koa/router  -- 路由依赖
-  * koa-bodyparser  -- 请求体解析依赖
-  * nodemon -- 自动重启服务依赖
-  * dotenv -- 配置文件依赖
-    * const SERVER_PORT = dotenv.config().parsed.SERVER_PORT
-  * mysql2 -- 数据库依赖
-  * bcryptjs -- 密码加密依赖
-  * koa-session -- session依赖
-  * jsonwebtoken -- jwt依赖
+## 数据库开发
 
-### 结构划分
-* 结构划分能够细粒度就尽量细粒度的实现吧，该思想主要是学习了线代的开发模式吧，插件化的思想
-  * 从而实现我们的代码的可读性以及降低代码的冗余度吧
-  * 导出的规范学习: web-infra社区 中的 modern.js 的一些规范吧，但是也添加了自己的一些个人特色吧
-* 同时文件名都和目录名一一实现对应吧
-> * main.js -- koa 服务的启动文件
-> * app
->   * index.app.js -- koa 的配置文件
-> * config
->   * server.config.js -- 服务器配置文件
-> * routers
->   * index.router.js -- 路由统一暴露
->   * user.router.js -- 用户路由
-> * controllers
->   * user.controller.js -- 用户控制器
-> * services
->   * user.service.js -- 用户服务
-> * middlewares
->   * mysql.middleware.js -- mysql 中间件
->   * user.middleware.js -- 用户中间件
-> * utils
->   * router.util.js -- 路由工具
->   * handleError.util.js -- 错误处理工具
->   * strengthPwd.util.js -- 密码加密工具
->   * matchPwd.util.js -- 密码匹配工具
-> * constant
->   * app.constant.js -- 应用常量
+```sql
+-- 创建 user 表，保存用户数据的表
+CREATE TABLE IF NOT EXISTS user (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,  
+    name VARCHAR(20) NOT NULL UNIQUE,  
+    password VARCHAR(255) NOT NULL,  
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
+);
 
-### 期望
-* 本来想集成 ts 的，但是由于 ts 代码的书写是代码的设计先于代码的实现，相当于多了一步代码设计的一步
-* 同时代码设计的这一步也是会耗费很多时间的，所以说这里就不集成 ts 了
-  * 如果需要进行使用 ts 进行重构的话，你们的操作可以是:
-    * npm install typescript
-    * npm install @types/koa @types/koa-router @types/koa-bodyparser @types/node
-  * 使用 ts 进行工程化的开发是一个十分困难的呐，代码的设计十分的难受，以及使用 ts 后还需要对代码进行新的构建
-  * 因为本项目主要是想完成一个细粒度开发 nodejs 服务器的 nodejs-demo 罢了，就不集成 ts 了吧，后面再出一个 ts-nodejs-server 吧
-  * https://juejin.cn/post/7349569626341081140 这文章, 可以先参考一下吧
+-- 创建 moment 表，发表评论
+CREATE TABLE IF NOT EXISTS moment(
+	id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    content TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    user_id BIGINT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+```
+
+## 开发准备
+
+* 使用的 `nodejs web server` 开发框架是: `koa`
+
+* 我们的开发规范的话全局使用了 `jwt` 机制，服务器采用的是 Bearar Token 校验吧，所使用了的依赖包是: `jsonwebtoken`
+
+* 使用的是我们的 `mysql` 关系型数据库吧，使用的 `nodejs` 驱动是: `mysql2` 
+
+* 使用了后端路由的形式实现我们的开发吧，所依赖的包是: `koa-router` | `@koa/router`
+
+* 进行请求体 `json` 格式解析的依赖包是: `koa-bodyparser`
+
+* 使用替代 `jwt` 的 `session-cookie` 机制的话，使用的是: `koa-session`
+
+* 使用的密码加密机制是: `bcryptjs`
+
+* 进行生成颁发 `token` 令牌方式，使用了秘钥对，使用的工具是: `openssl`
+
+  * ```bash
+    # 生成私钥
+    openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:204
+    # 生成公钥
+    openssl rsa -in private_key.pem -pubout -out public_key.pem
+    ```
+
+* 进行保存用户 `token` 信息使用的依赖是: `ioredis`
+
+* 获取全局配置 `.env` 信息的工具是: `dotenv`
+
+* 开发使用的调试启动工具是: `nodemon`
+
+* 后续集成 ts 使用的自动化执行依赖: `ts-node-dev`
+
+* 集成支持 ts 的几个依赖包: `typescript` | `ts-node` | `tslint` | `typescript` | `@types/node`  | `@type/koa`
+
+  * 当然现在还不集成，计划安排是使用我们的 `memorepo` 架构设计，实现我们的重构为两个版本的 `node_server`
+    * `js_node_server` | `ts_node_server`
+
+## 架构组织
+
+```
+docs--   文档目录
+src--    源码目录
+---app          服务器总的配置文件
+---config       获取配置信息文件
+---constant     项目静态变量文件
+---keys         项目密钥对文件
+---controllers  项目中联系路由和数据库之间的中间控制器
+---middlewares  项目中自定义中间件
+---routers      项目中 api 接口路由定义
+---services     操作数据库模型的定义
+---utils        整个项目中的工具函数
+---main.js      项目启动文件
+.env               项目配置文件
+.gitignore git     上传忽略文件
+LICENCE github     认证文件
+package.json npm   配置依赖文件，项目管理文件
+package-lock.json  项目依赖版本锁定文件
+README.md          项目阅读文档
+```
+
+## API 文档
+
+### 用户注册接口
+
+* `/user/register`
+
+  * 用户注册接口
+
+  * 校验形式: `query-params` 和 `body` 格式校验
+
+  * 必须字段:
+
+    * `name` : `string`
+    * `password`: `string`
+
+  * `query-params`
+
+    * `/user/register?name=juwenzhang&password=123456%jJ`
+
+  * `body`
+
+    * ```json
+      {
+          "name": "juwenzhang",
+          "passsword": "123456@jJ"
+      }
+      ```
+
+  * 返回信息为:
+
+    * `注册成功`
+
+      * ```json
+        {
+            "code":0,
+            "msg":"success",
+            "status":200,
+            "ok":true,
+            "desc":"用户创建成功",
+            "data":{
+                "fieldCount":0,
+               "affectedRows":1,
+               "insertId":15,
+               "info":"",
+               "serverStatus":2,
+               "warningStatus":0,
+               "changedRows":0
+            }
+        }   
+        ```
+
+    * `注册失败，用户已经存在`
+
+      * ```json
+        {
+            "code":-1002,
+            "message":"用户名已存在"
+        }
+        ```
+
+    * `注册失败，缺失字段`
+
+      * ```json
+        {
+            "code":-1001,
+            "message":"用户名或密码不能为空"
+        }
+        ```
+
+### 用户登录接口
+
+* `/user/login`
+
+  * 用户登录接口
+
+  * 必须字段: name 和 password
+
+  * `登录成功，但是凭证未过期`
+
+    * ```json
+      {
+          "code":0,
+          "msg":"success",
+          "status":200,
+          "ok":true,
+          "desc":"欢迎回来😊😊~~~",
+          "data":{
+              "id":15,
+              "name":"juwenzhang",
+              "token":"token"
+          }
+      }
+      ```
+
+  * `登录成功，但是没有凭证`
+
+    * ```json
+      {
+          "code":0,
+          "msg":"success",
+          "status":200,
+          "ok":true,
+          "desc":"登录成功",
+          "data":{
+              "id":15,
+              "name":"juwenzhang",
+              "token":"token"
+          }
+      }
+      ```
+
+  * `登录失败，因为缺失字段`
+
+    * ```json
+      {
+          "code":-1001,
+          "message":"用户名或密码不能为空"
+      }
+      ```
+
+### 发布评论接口
+
+* `/moment/publish`
+  * `post` 请求
+  * 服务端验证 `Bearar Token` 以及 `Body` 评论信息
+
+### 获取评论列表接口
+
+* `/moment/commentList`
+  * `get` 请求
+  * 服务端不校验 `Bearar token`
+  * 接口所需参数
+    * `offset` 可选，默认为 0
+    * `size` 可选，默认为 10
+
+### 获取评论详情接口
+
+* `/moment/detail/:momentId`
+  * `get` 请求
+  * 服务端无 `Bearar token` 校验
+  * 需要含有动态参数: `momentId`
+
+### 更新评论接口
+
+* `/moment/update/:momentId`
+* `patch` 请求
+* 服务端有 `Bearar Token` 校验
+* 客户端需要传递动态路由: `momentId` 以及 `body` 信息 

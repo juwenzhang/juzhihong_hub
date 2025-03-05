@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES6",                       // 目标 ECMAScript 版本
+    "module": "commonjs",                  // 模块系统
+    "strict": true,                        // 启用所有严格类型检查选项
+    "esModuleInterop": true,               // 允许导入 CommonJS 模块
+    "skipLibCheck": true,                  // 跳过声明文件的类型检查
+    "forceConsistentCasingInFileNames": true, // 强制文件名大小写一致
+    "outDir": "./dist",                    // 输出目录
+    "rootDir": "./src",                    // 根目录
+    "noImplicitAny": true,                 // 不允许隐式的 any 类型
+    "strictNullChecks": true,              // 启用严格的 null 检查
+    "strictFunctionTypes": true,           // 启用严格的函数类型检查
+    "strictBindCallApply": true,           // 启用严格的 bind/call/apply 检查
+    "strictPropertyInitialization": true,  // 启用严格的属性初始化检查
+    "noFallthroughCasesInSwitch": true,    // 禁止 switch 语句中的穿透
+    "noUnusedLocals": true,                // 禁止未使用的局部变量
+    "noUnusedParameters": true,            // 禁止未使用的参数
+    "noImplicitReturns": true,             // 禁止隐式的返回值
+    "noImplicitThis": true,                // 禁止隐式的 this 类型
+    "alwaysStrict": true,                  // 总是启用严格模式
+    "moduleResolution": "node",            // 模块解析策略
+    "resolveJsonModule": true,             // 允许解析 JSON 模块
+    "isolatedModules": true,               // 每个文件都是一个独立的模块
+    "allowSyntheticDefaultImports": true,  // 允许合成默认导入
+    "sourceMap": true                      // 生成源映射文件
+  },
+  "include": ["src/**/*"],                 // 包含的文件
+  "exclude": ["node_modules"]              // 排除的文件
+}

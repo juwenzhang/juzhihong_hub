@@ -24,7 +24,9 @@
 
 const userService = require('../services/user.service');
 const matchPwdUtil = require('../utils/matchPwd.util');
-const {UserErrorMessages} = require("../constant/app.constant");
+const redisConnection = require('../middlewares/redis.middlwware')
+const { UserErrorMessages } = require("../constant/app.constant");
+const { storeToken } = require("../utils/token.util")
 
 class UserController {
     async create(ctx, next) {
@@ -46,16 +48,48 @@ class UserController {
         // get user info from ctx middleware, this data from client-side-request
         const userInfo = ctx.userInfo
         const dbUser = ctx.dbUser
-        console.log(userInfo, dbUser)
-        if (matchPwdUtil(userInfo.password, dbUser.password)) {
-            ctx.body = {
-                code: 0,
-                msg: 'success',
-                status: 200,
-                ok: matchPwdUtil(userInfo.password, dbUser.password),
-                desc: "用户登录成功",
-                data: {
-                    token: 'token'
+        // console.log(userInfo, dbUser)
+        const isMatch = matchPwdUtil(userInfo.password, dbUser.password)
+        if (isMatch) {
+            const payload = {
+                id: dbUser.id,
+                name: dbUser.name,
+            }
+            const redis_connection = redisConnection()
+            let token = await redis_connection.get(`${payload.name}_${payload.id}_token`)
+            if (!token) {
+                token = await storeToken(
+                    payload,
+                    ctx
+                )
+                await redis_connection.set(
+                    `${payload.name}_${payload.id}_token`,
+                    token,
+                    'EX',
+                    60 * 60 * 24 * 14
+                )
+                ctx.body = {
+                    code: 0,
+                    msg: 'success',
+                    status: 200,
+                    ok: isMatch,
+                    desc: "用户登录成功",
+                    data: {
+                        ...payload,
+                        token
+                    }
+                }
+            } else {
+                ctx.body = {
+                    code: 0,
+                    msg: 'success',
+                    status: 200,
+                    ok: isMatch,
+                    desc: "欢迎回来😊😊~~~",
+                    data: {
+                        ...payload,
+                        token
+                    }
                 }
             }
         } else {

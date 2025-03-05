@@ -21,15 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+const momentService = require("../services/moment.service");
 
-const UserRouter = require('./user.router');
-const MomentRouter = require('./moment.router');
-
-const routers = [
-    UserRouter,
-    MomentRouter,
-];
+const verifyMomentPermissionMiddleware = async (ctx, next) => {
+    const { momentId } = ctx.params
+    const userId = ctx.user.id
+    const res = await momentService.getUserIdById(momentId)
+    if (Number(res[0]?.user_id) !== Number(userId)) {
+        ctx.body = {
+            code: 1,
+            msg: 'user do not have permission',
+            desc: "user do not have permission",
+            status: 401,
+            ok: false,
+        }
+        return
+    }
+    await next()
+}
 
 module.exports = {
-    routers,
-};
+    verifyMomentPermissionMiddleware
+}

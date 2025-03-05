@@ -22,14 +22,12 @@
  * SOFTWARE.
  */
 
-const UserRouter = require('./user.router');
-const MomentRouter = require('./moment.router');
+const dotenv = require('dotenv');
 
-const routers = [
-    UserRouter,
-    MomentRouter,
-];
+const config = dotenv.config().parsed;
 
-module.exports = {
-    routers,
-};
+const TOKEN_CONFIG = {
+    expire: config.TOKEN_EXPIRE_TIME
+}
+
+module.exports = TOKEN_CONFIG;

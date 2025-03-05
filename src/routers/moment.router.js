@@ -22,14 +22,35 @@
  * SOFTWARE.
  */
 
-const UserRouter = require('./user.router');
-const MomentRouter = require('./moment.router');
+// import-dependencies part
+const KoaRouter = require('@koa/router');
+const momentController = require('../controllers/moment.controller');
+const { verifyToken } = require('../utils/token.util');
+const { verifyMomentPermissionMiddleware } = require("../middlewares/moment.middleware");
 
-const routers = [
-    UserRouter,
-    MomentRouter,
-];
+const MomentRouter  = new KoaRouter({ prefix: '/moment' });
 
-module.exports = {
-    routers,
-};
+MomentRouter.post(
+    '/publish',
+    verifyToken,
+    momentController.create
+);
+
+MomentRouter.get(
+    '/commentList',
+    momentController.getCommentList
+);
+
+MomentRouter.get(
+    '/detail/:momentId',
+    momentController.getMomentById
+);
+
+MomentRouter.patch(
+    '/update/:momentId',
+    verifyToken,
+    verifyMomentPermissionMiddleware,
+    momentController.updateComment
+)
+
+module.exports = MomentRouter;

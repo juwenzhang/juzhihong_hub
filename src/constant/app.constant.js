@@ -29,9 +29,21 @@ const UserErrorMessages = {
     PASSWORD_LENGTH_IS_TOO_SHORT: "password_length_is_too_short",
     PASSWORD_IS_NOT_STRONG: "password_is_not_strong",
     USER_INFO_NOT_EXIST: "user_info_not_exist",
-    USER_PASSWORD_IS_INCORRECT: "user_password_is_incorrect"
+    USER_PASSWORD_IS_INCORRECT: "user_password_is_incorrect",
+    TOKEN_GENERATE_FAILED: "token_generate_failed",
+    TOKEN_IS_REQUIRED: "token_is_required",
+    TOKEN_VERIFY_FAILED: "token_verify_failed",
+    TOKEN_VERIFY_EXPIRED: "token_verify_expired",
+    REDIS_CONNECTION_FAILED: "redis_connection_failed",
+    TOKEN_FORMAT_IS_INCORRECT: "token_format_is_incorrect"
+}
+
+// moment part
+const MomentErrorMessages = {
+    MOMENT_USER_NOT_EXIST: "moment_user_not_exist",
 }
 
 module.exports = {
-    UserErrorMessages
+    UserErrorMessages,
+    MomentErrorMessages
 }

@@ -24,6 +24,7 @@
 
 const app = require('../app/index.app')
 const { UserErrorMessages } = require("../constant/app.constant")
+const { MomentErrorMessages } = require("../constant/app.constant")
 
 app.on("error", (err, ctx) => {
     let code = 0
@@ -59,8 +60,43 @@ app.on("error", (err, ctx) => {
             break
         case UserErrorMessages.USER_PASSWORD_IS_INCORRECT:
             code = -1006
-            message = "用户名或密码不正确"
+            message = "密码不正确"
             status = 401
+            break
+        case UserErrorMessages.TOKEN_GENERATE_FAILED:
+            code = -1007
+            message = "token生成失败"
+            status = 500
+            break
+        case UserErrorMessages.TOKEN_IS_REQUIRED:
+            code = -1008
+            message = "token不能为空"
+            status = 400
+            break
+        case UserErrorMessages.TOKEN_VERIFY_FAILED:
+            code = -1009
+            message = "token验证失败"
+            status = 401
+            break
+        case UserErrorMessages.TOKEN_VERIFY_EXPIRED:
+            code = -1010
+            message = "token已过期"
+            status = 401
+            break
+        case UserErrorMessages.REDIS_CONNECTION_FAILED:
+            code = -1011
+            message = "redis连接失败"
+            status = 500
+            break
+        case UserErrorMessages.TOKEN_FORMAT_IS_INCORRECT:
+            code = -1012
+            message = "token格式不正确"
+            status = 400
+            break
+        case MomentErrorMessages.MOMENT_USER_NOT_EXIST:
+            code = -1013
+            message = "用户不存在，无法发布评论"
+            status = 404
             break
         default:
             break

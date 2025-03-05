@@ -22,14 +22,21 @@
  * SOFTWARE.
  */
 
-const UserRouter = require('./user.router');
-const MomentRouter = require('./moment.router');
+const Redis = require('ioredis');
+const {UserErrorMessages} = require("../constant/app.constant");
 
-const routers = [
-    UserRouter,
-    MomentRouter,
-];
+// connection to redis
+function redisConnection(redisConfig={
+    host: '127.0.0.1',
+    port: 6379,
+    password: '',
+    db: 0
+}, ctx) {
+    try {
+        return new Redis(redisConfig);
+    } catch (error) {
+        ctx.app.emit("error", UserErrorMessages.REDIS_CONNECTION_FAILED, ctx)
+    }
+}
 
-module.exports = {
-    routers,
-};
+module.exports = redisConnection
