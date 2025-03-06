@@ -23,7 +23,7 @@
  */
 
 const connectionPool = require('../middlewares/mysql.middleware')
-const {MomentErrorMessages} = require('../constant/app.constant')
+const {MomentErrorMessages, MomentErrorMessage} = require('../constant/app.constant')
 
 class MomentService {
     constructor() {
@@ -41,45 +41,81 @@ class MomentService {
             insert: `
                 INSERT INTO moment (content, user_id) VALUES(?, ?);
             `,
+            // moment-table has many user-table, comment-table
             select_comment_list: `
                 SELECT 
-                moment.id as moment_id,
-                moment.content as moment_content,
-                moment.user_id as moment_user_id,
-                moment.create_time as moment_create_time,
-                moment.update_time as moment_update_time, 
-                user.name as user_name,
-                user.create_time as user_create_time,
-                user.update_time as user_update_time
+                JSON_OBJECT(
+                    'user_id', user.id, 
+                    'user_name', user.name, 
+                    'user_create_time', user.create_time, 
+                    'user_update_time', user.update_time
+                ) AS user_info,
+                JSON_OBJECT(
+                    'moment_id', moment.id,
+                    'moment_content', moment.content,
+                    'moment_user_id', moment.user_id,
+                    'moment_create_time', moment.create_time,
+                    'moment_update_time', moment.update_time    
+                ) AS moment_info,
+                (SELECT COUNT(*) FROM comment WHERE comment.moment_id = moment.id) AS comment_count
                 FROM moment LEFT JOIN user 
-                ON user.id = moment.user_id LIMIT ?, ?;
+                ON user.id = moment.user_id
+                LIMIT ?, ?
             `,
             select_comment_list_by_id: `
                 SELECT 
-                moment.id as moment_id,
-                moment.content as moment_content,
-                moment.user_id as moment_user_id,
-                moment.create_time as moment_create_time,
-                moment.update_time as moment_update_time, 
-                user.name as user_name,
-                user.create_time as user_create_time,
-                user.update_time as user_update_time
-                FROM moment LEFT JOIN user 
-                ON user.id = moment.user_id WHERE moment.id = ?;
+                JSON_OBJECT(
+                    'user_name', user.name,
+                    'user_create_time', user.create_time,
+                    'user_update_time', user.update_time
+                ) AS user_info,
+                JSON_OBJECT(
+                    'moment_id', moment.id,
+                    'moment_content', moment.content,
+                    'moment_user_id', moment.user_id,
+                    'moment_create_time', moment.create_time,
+                    'moment_update_time', moment.update_time    
+                ) AS moment_info,
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'comment_id', comment.id,
+                        'comment_content', comment.content,
+                        'comment_user_id', comment.user_id,
+                        'comment_moment_id', comment.moment_id,
+                        'comment_comment_id', comment.comment_id,
+                        'comment_author_info', JSON_OBJECT(
+                            'comment_author_id', comment_user.id,
+                            'comment_author_name', comment_user.name,
+                            'comment_author_create_time', comment_user.create_time,
+                            'comment_author_update_time', comment_user.update_time
+                        ),
+                        'comment_create_time', comment.create_time,
+                        'comment_update_time', comment.update_time
+                    )
+                ) AS comment_infos,
+                (SELECT COUNT(*) FROM comment WHERE comment.moment_id = moment.id) AS comment_count
+                FROM moment 
+                LEFT JOIN user ON user.id = moment.user_id 
+                LEFT JOIN comment ON comment.moment_id = moment.id
+                LEFT JOIN user AS comment_user ON comment_user.id = comment.user_id
+                WHERE moment.id = ?
+                GROUP BY moment.id;
             `,
             update_comment: `
                 UPDATE moment SET content = ? WHERE id = ?;
+            `,
+            delete_comment: `
+                DELETE FROM moment WHERE id = ?;
             `,
             get_user_id_by_id: `
                 SELECT * FROM moment WHERE id = ?;
             `
         }
-        this.__createTable()
     }
 
-     __createTable() {
+     async createTable() {
         try {
-            connectionPool.execute(this.__statement.create_table)
+            await connectionPool.execute(this.__statement.create_table)
         } catch (error) {
             console.log(error)
         }
@@ -128,6 +164,16 @@ class MomentService {
     async updateComment(id, content) {
         try {
             const [res] = await connectionPool.execute(this.__statement.update_comment, [content, id])
+            return res;
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    }
+
+    async deleteComment(id) {
+        try {
+            const [res] = await connectionPool.execute(this.__statement.delete_comment, [id])
             return res;
         } catch (error) {
             console.log(error)

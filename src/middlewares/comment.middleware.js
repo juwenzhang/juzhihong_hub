@@ -22,18 +22,18 @@
  * SOFTWARE.
  */
 
-const UserRouter = require('./user.router');
-const MomentRouter = require('./moment.router');
-const CommentRouter = require('./comment.router');
-const LabelRouter = require('./label.router');
+const commentService = require('../services/comment.service');
+const { CommentErrorMessage } = require('../constant/app.constant');
 
-const routers = [
-    UserRouter,
-    MomentRouter,
-    CommentRouter,
-    LabelRouter
-];
+const createTableMiddleware = async (ctx, next) => {
+    try {
+        await commentService.createTable();
+        await next();
+    } catch (error) {
+        ctx.app.emit("error", CommentErrorMessage.CREATE_COMMENT_TABLE_ERROR, ctx);
+    }
+}
 
 module.exports = {
-    routers,
-};
+    createTableMiddleware
+}

@@ -22,18 +22,31 @@
  * SOFTWARE.
  */
 
-const UserRouter = require('./user.router');
-const MomentRouter = require('./moment.router');
-const CommentRouter = require('./comment.router');
-const LabelRouter = require('./label.router');
+const connectPool = require('../middlewares/mysql.middleware');
+const connectionPool = require("../middlewares/mysql.middleware");
 
-const routers = [
-    UserRouter,
-    MomentRouter,
-    CommentRouter,
-    LabelRouter
-];
+class LabelService {
+    constructor() {
+        this.__statement = {
+            create_table: `
+                CREATE TABLE IF NOT EXISTS label(
+                    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                    name VARCHAR(50) NOT NULL UNIQUE,
+                    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                );
+            `
+        }
+    }
 
-module.exports = {
-    routers,
-};
+    async createTable() {
+        try {
+            await connectionPool.execute(this.__statement.create_table)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+}
+
+const labelService = new LabelService();
+module.exports = labelService;

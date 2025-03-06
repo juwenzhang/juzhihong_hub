@@ -26,6 +26,16 @@ const userService = require("../services/user.service");
 const { UserErrorMessages } = require("../constant/app.constant");
 const strengthPwdUtil = require("../utils/strengthPwd.util");
 
+const createTableMiddleware = async (ctx, next) => {
+    // create table if not exists
+    try{
+        await userService.createTable()
+        await next()
+    } catch (error) {
+        ctx.app.emit("error", UserErrorMessages.CREATE_USER_TABLE_ERROR, ctx)
+    }
+}
+
 const userMiddlewareValidate = async (ctx, next) => {
     // body and query validate to get user info
     let user = ctx.request.query;
@@ -97,6 +107,7 @@ const userIsInDbMiddleware = async (ctx, next) => {
 }
 
 module.exports = {
+    createTableMiddleware,
     userMiddlewareValidate,
     userInfoHasAllFieldsMiddleware,
     userInfoHasExistedInDbMiddleware,

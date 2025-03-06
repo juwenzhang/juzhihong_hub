@@ -44,14 +44,12 @@ class UserService {
                 SELECT * FROM user WHERE name = ?;
             `
         }
-        // create user table to ensure the table exists
-        this.__createTable()
     }
 
     // create table method
-    __createTable() {
+    async createTable() {
         try {
-            connectionPool.execute(this.__statement.create_table)
+            await connectionPool.execute(this.__statement.create_table)
         } catch (error) {
             console.log(error)
         }

@@ -23,12 +23,18 @@
  */
 
 const momentService = require('../services/moment.service');
+const { MomentErrorMessage } = require('../constant/app.constant');
 
 class MomentController {
     async create(ctx, next) {
         // get content from client-side
         const { content } = ctx.request.body;
-
+        if (!content) {
+            ctx.app.emit(
+                'error', MomentErrorMessage.MomentErrorMessages.MOMENT_CONTENT_IS_REQUIRED,
+                ctx
+            )
+        }
         // get user-info from verifyToken middleware, this is a userObject
         const { id, name } = ctx.user
 
@@ -86,13 +92,47 @@ class MomentController {
     async updateComment(ctx, next){
         const { momentId } = ctx.params
         const { content } = ctx.request.body
+        if (!content) {
+            ctx.app.emit(
+                'error', MomentErrorMessage.MOMENT_CONTENT_IS_REQUIRED,
+                ctx
+            )
+        }
+
         const res = await momentService.updateComment(momentId, content)
+        if (res.length === 0) {
+            ctx.app.emit(
+                'error', MomentErrorMessage.MOMENT_NOT_EXIST,
+                ctx
+            )
+        }
         ctx.body = {
             code: 0,
             msg: 'success',
             status: 200,
             ok: true,
             desc: "更新动态成功",
+            data: {
+                ...res
+            }
+        }
+    }
+
+    async deleteComment(ctx, next){
+        const { momentId } = ctx.params
+        const res = await momentService.deleteComment(momentId)
+        if (res.length === 0) {
+            ctx.app.emit(
+                'error', MomentErrorMessage.MOMENT_NOT_EXIST,
+                ctx
+            )
+        }
+        ctx.body = {
+            code: 0,
+            msg: 'success',
+            status: 200,
+            ok: true,
+            desc: "删除动态成功",
             data: {
                 ...res
             }

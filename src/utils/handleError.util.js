@@ -25,6 +25,7 @@
 const app = require('../app/index.app')
 const { UserErrorMessages } = require("../constant/app.constant")
 const { MomentErrorMessages } = require("../constant/app.constant")
+const { CommentErrorMessage } = require("../constant/app.constant")
 
 app.on("error", (err, ctx) => {
     let code = 0
@@ -97,6 +98,41 @@ app.on("error", (err, ctx) => {
             code = -1013
             message = "用户不存在，无法发布评论"
             status = 404
+            break
+        case MomentErrorMessages.MOMENT_NOT_EXIST:
+            code = -1014
+            message = "动态不存在"
+            status = 404
+            break
+        case MomentErrorMessages.MOMENT_CONTENT_IS_REQUIRED:
+            code = -1015
+            message = "动态内容不能为空"
+            status = 400
+            break
+        case MomentErrorMessages.MOMENT_USER_NOT_PERMISSION:
+            code = -1016
+            message = "用户没有权限"
+            status = 401
+            break
+        case CommentErrorMessage.CREATE_COMMENT_TABLE_ERROR:
+            code = -1017
+            message = "创建 comment 表失败"
+            status = 500
+            break
+        case MomentErrorMessages.CREATE_MOMENT_TABLE_ERROR:
+            code = -1018
+            message = "创建 moment 表失败"
+            status = 500
+            break
+        case UserErrorMessages.CREATE_USER_TABLE_ERROR:
+            code = -1019
+            message = "创建 user 表失败"
+            status = 500
+            break
+        case CommentErrorMessage.COMMENT_CREATE_ERROR:
+            code = -1020
+            message = "创建评论失败，请检查你的用户是否存在吧！！！"
+            status = 500
             break
         default:
             break

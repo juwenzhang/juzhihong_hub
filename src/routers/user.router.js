@@ -32,7 +32,8 @@ const {
     userPasswordHandleLengthMiddleware,  // to ensure the user password has length
     userPasswordHandleFormatMiddleware,  // to ensure the user password has format
     userPasswordHandleStrengthMiddleware,  // to ensure the user password has strength
-    userIsInDbMiddleware  // to ensure the user info has existed in db
+    userIsInDbMiddleware,  // to ensure the user info has existed in db
+    createTableMiddleware  // to ensure the table has created
 } = require('../middlewares/user.middleware');
 
 // define-router part
@@ -41,6 +42,7 @@ const UserRouter = new KoaRouter({prefix: '/user'});
 // define-router-api part
 UserRouter.post(
     '/register',
+    createTableMiddleware,
     userMiddlewareValidate,
     userInfoHasAllFieldsMiddleware,
     userInfoHasExistedInDbMiddleware,
@@ -52,6 +54,7 @@ UserRouter.post(
 UserRouter.post(
     '/login',
     // if has two password to validate, this func give client-side to handle
+    createTableMiddleware,
     userMiddlewareValidate,
     userInfoHasAllFieldsMiddleware,
     userIsInDbMiddleware,

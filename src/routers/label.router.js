@@ -22,18 +22,9 @@
  * SOFTWARE.
  */
 
-const UserRouter = require('./user.router');
-const MomentRouter = require('./moment.router');
-const CommentRouter = require('./comment.router');
-const LabelRouter = require('./label.router');
+const KoaRouter = require('@koa/router');
+const { createTableMiddleware } = require("../middlewares/label.middleware")
 
-const routers = [
-    UserRouter,
-    MomentRouter,
-    CommentRouter,
-    LabelRouter
-];
+const LabelRouter = new KoaRouter({prefix: '/labels'});
 
-module.exports = {
-    routers,
-};
+module.exports = LabelRouter;

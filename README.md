@@ -1,4 +1,12 @@
+> * 接口文档地址: https://www.postman.com/juwenzhang/workspace/my-workspace/collection/39342202-4434e4f0-41dc-4c0d-9696-ce8cc7cbf1b9?action=share&creator=39342202&active-environment=39342202-30b25186-4f31-4a50-b13c-986a79831508
+> * 当然还在开发中，肯定是没有部署的呐，后面部署和开发好了后，文档自会更新😊😊😊
+
 ## 数据库开发
+
+> * `user table` 和 `moment table` 是一对多关系，一个用户可以有多个动态吧
+> * `user table` 和 `comment table` 是一对多关系，一个用户可以有多个评论吧
+> * `moment table` 和 `comment table` 是一对多关系，一个动态可以有多个评论吧
+>   * 客户端判断该评论是否是二级评论的标志是服务端数据中的 `comment_id` 是否为 `null`
 
 ```sql
 -- 创建 user 表，保存用户数据的表
@@ -10,7 +18,7 @@ CREATE TABLE IF NOT EXISTS user (
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
 );
 
--- 创建 moment 表，发表评论
+-- 创建 moment 表，发表动态吧
 CREATE TABLE IF NOT EXISTS moment(
 	id BIGINT PRIMARY KEY AUTO_INCREMENT,
     content TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -19,6 +27,91 @@ CREATE TABLE IF NOT EXISTS moment(
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
 );
+
+-- 创建 comment 表，发表子评论
+CREATE TABLE IF NOT EXISTS comment(
+	id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    content TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    user_id BIGINT NOT NULL,  -- 绑定用户表
+    comment_id BIGINT NULL,  -- 绑定评论表
+    moment_id BIGINT NOT NULL,  -- 绑定动态表
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY(comment_id) REFERENCES comment(id) ON DELETE CASCADE,
+    FOREIGN KEY(moment_id) REFERENCES moment(id) ON DELETE CASCADE
+);
+
+-- 创建 label 标签表吧
+CREATE TABLE IF NOT EXISTS label(
+	id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+```sql
+-- 分页查询 + 连表查询
+SELECT 
+JSON_OBJECT(
+    'user_id', user.id, 
+    'user_name', user.name, 
+    'user_create_time', user.create_time, 
+    'user_update_time', user.update_time
+) AS user_info,
+JSON_OBJECT(
+    'moment_id', moment.id,
+    'moment_content', moment.content,
+    'moment_user_id', moment.user_id,
+    'moment_create_time', moment.create_time,
+    'moment_update_time', moment.update_time    
+) AS moment_info,
+(SELECT COUNT(*) FROM comment WHERE comment.moment_id = moment.id) AS comment_count
+FROM moment LEFT JOIN user 
+ON user.id = moment.user_id
+LIMIT ?, ?
+```
+
+```sql
+-- 连表查询 + 聚合查询
+SELECT 
+JSON_OBJECT(
+    'user_name', user.name,
+    'user_create_time', user.create_time,
+    'user_update_time', user.update_time
+) AS user_info,
+JSON_OBJECT(
+    'moment_id', moment.id,
+    'moment_content', moment.content,
+    'moment_user_id', moment.user_id,
+    'moment_create_time', moment.create_time,
+    'moment_update_time', moment.update_time    
+) AS moment_info,
+JSON_ARRAYAGG(
+    JSON_OBJECT(
+        'comment_id', comment.id,
+        'comment_content', comment.content,
+        'comment_user_id', comment.user_id,
+        'comment_moment_id', comment.moment_id,
+        'comment_comment_id', comment.comment_id,
+        'comment_author_info', JSON_OBJECT(
+            'comment_author_id', comment_user.id,
+            'comment_author_name', comment_user.name,
+            'comment_author_create_time', comment_user.create_time,
+            'comment_author_update_time', comment_user.update_time
+        ),
+        'comment_create_time', comment.create_time,
+        'comment_update_time', comment.update_time
+    )
+) AS comment_infos,
+(SELECT COUNT(*) FROM comment WHERE comment.moment_id = moment.id) AS comment_count
+FROM moment 
+LEFT JOIN user ON user.id = moment.user_id 
+LEFT JOIN comment ON comment.moment_id = moment.id
+LEFT JOIN user AS comment_user ON comment_user.id = comment.user_id
+WHERE moment.id = ?
+GROUP BY moment.id;
 ```
 
 ## 开发准备
@@ -83,6 +176,11 @@ README.md          项目阅读文档
 ```
 
 ## API 文档
+
+> * koa 服务器获取动态路由参数的方式为: `ctx.params`
+> * koa 服务器获取查询参数的方式为: `ctx.request.query`
+> * koa 服务器获取请求体数据的方式为: `ctx.request.body`
+> * koa 服务器返回响应数据的方式为： `ctx.body`
 
 ### 用户注册接口
 
@@ -202,31 +300,65 @@ README.md          项目阅读文档
       }
       ```
 
-### 发布评论接口
+### 发布动态接口
 
 * `/moment/publish`
   * `post` 请求
   * 服务端验证 `Bearar Token` 以及 `Body` 评论信息
 
-### 获取评论列表接口
+### 获取动态列表接口
 
-* `/moment/commentList`
+* `/moment/commentlist`
   * `get` 请求
   * 服务端不校验 `Bearar token`
   * 接口所需参数
     * `offset` 可选，默认为 0
     * `size` 可选，默认为 10
 
-### 获取评论详情接口
+### 获取动态详情接口
 
 * `/moment/detail/:momentId`
   * `get` 请求
   * 服务端无 `Bearar token` 校验
   * 需要含有动态参数: `momentId`
 
-### 更新评论接口
+### 更新动态接口
 
 * `/moment/update/:momentId`
 * `patch` 请求
 * 服务端有 `Bearar Token` 校验
 * 客户端需要传递动态路由: `momentId` 以及 `body` 信息 
+
+### 删除动态接口
+
+* `/moment/delete/:momentId`
+* `delete` 请求
+* 服务端有 `Bearar Token` 校验
+* 客户端请求的时候需要进行携带 `Bearar Token` 信息，否则提示 `Token` 不存在
+
+### 发布评论接口
+
+* `/comment/publish`
+* `post` 请求
+* 服务端具有 `Bearar Token` 校验
+* 客户端需要传递的参数是: `content` | `moment_id`
+  * `content` 发布评论内容
+  * `moment_id` 评论动态的动态 `id` 吧
+
+### 回复评论接口
+
+* `/comment/reply`
+* `post` 请求
+* 服务端具备 `Bearar Token` 校验的呐
+* 客户端需要传递内容参数字段是 `content` | `content_id` | `moment_id`
+  * 需要保证我们的回复的评论的 `moment_id` 和 评论的 `moment_id` 是同一个的呐，
+    * 否则就是跨动态评论了，跨时空交流了
+  * `content` 回复评论内容
+  * `content_id` 回复的评论标识 `id`
+  * `moment_id` 回复的是哪一条评论的标识 `id`
+
+### 删除评论接口
+
+* `/comment/delete/:commentId`
+* `delete` 请求
+* 服务端具备对 `Bearar Token` 校验吧

@@ -22,18 +22,32 @@
  * SOFTWARE.
  */
 
-const UserRouter = require('./user.router');
-const MomentRouter = require('./moment.router');
-const CommentRouter = require('./comment.router');
-const LabelRouter = require('./label.router');
+const KoaRouter = require('@koa/router');
+const CommentController = require('../controllers/comment.controller');
+const { verifyToken } = require('../utils/token.util');
+const { createTableMiddleware } = require('../middlewares/comment.middleware');
 
-const routers = [
-    UserRouter,
-    MomentRouter,
-    CommentRouter,
-    LabelRouter
-];
+const CommentRouter = new KoaRouter({prefix: '/comment'});
 
-module.exports = {
-    routers,
-};
+CommentRouter.post(
+    '/publish',
+    verifyToken,
+    createTableMiddleware,
+    CommentController.create_comment
+);
+
+CommentRouter.post(
+    '/reply',
+    verifyToken,
+    createTableMiddleware,
+    CommentController.reply_comment
+)
+
+CommentRouter.delete(
+    '/delete/:commentId',
+    verifyToken,
+    createTableMiddleware,
+    CommentController.delete_comment
+)
+
+module.exports = CommentRouter;

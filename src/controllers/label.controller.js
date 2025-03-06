@@ -22,18 +22,9 @@
  * SOFTWARE.
  */
 
-const UserRouter = require('./user.router');
-const MomentRouter = require('./moment.router');
-const CommentRouter = require('./comment.router');
-const LabelRouter = require('./label.router');
+class LabelController{
 
-const routers = [
-    UserRouter,
-    MomentRouter,
-    CommentRouter,
-    LabelRouter
-];
+}
 
-module.exports = {
-    routers,
-};
+const labelController = new LabelController();
+module.exports = labelController

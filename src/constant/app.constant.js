@@ -35,15 +35,33 @@ const UserErrorMessages = {
     TOKEN_VERIFY_FAILED: "token_verify_failed",
     TOKEN_VERIFY_EXPIRED: "token_verify_expired",
     REDIS_CONNECTION_FAILED: "redis_connection_failed",
-    TOKEN_FORMAT_IS_INCORRECT: "token_format_is_incorrect"
+    TOKEN_FORMAT_IS_INCORRECT: "token_format_is_incorrect",
+    CREATE_USER_TABLE_ERROR: "create_user_table_error"
 }
 
 // moment part
 const MomentErrorMessages = {
     MOMENT_USER_NOT_EXIST: "moment_user_not_exist",
+    MOMENT_NOT_EXIST: "moment_not_exist",
+    MOMENT_CONTENT_IS_REQUIRED: "moment_content_is_required",
+    MOMENT_USER_NOT_PERMISSION: "moment_user_not_permission",
+    CREATE_MOMENT_TABLE_ERROR: "create_moment_table_error"
+}
+
+// comment part
+const CommentErrorMessage = {
+    CREATE_COMMENT_TABLE_ERROR: "create_comment_table_error",
+    COMMENT_CREATE_ERROR: "comment_create_error"
+}
+
+// label part
+const LabelErrorMessage = {
+    CREATE_LABEL_TABLE_ERROR: "create_label_table_error"
 }
 
 module.exports = {
     UserErrorMessages,
-    MomentErrorMessages
+    MomentErrorMessages,
+    CommentErrorMessage,
+    LabelErrorMessage
 }

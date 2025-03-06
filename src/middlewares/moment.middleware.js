@@ -22,24 +22,33 @@
  * SOFTWARE.
  */
 const momentService = require("../services/moment.service");
+const { MomentErrorMessage } = require("../constant/app.constant");
 
 const verifyMomentPermissionMiddleware = async (ctx, next) => {
-    const { momentId } = ctx.params
     const userId = ctx.user.id
+    const { momentId } = ctx.params
     const res = await momentService.getUserIdById(momentId)
-    if (Number(res[0]?.user_id) !== Number(userId)) {
-        ctx.body = {
-            code: 1,
-            msg: 'user do not have permission',
-            desc: "user do not have permission",
-            status: 401,
-            ok: false,
+    if (res.length !== 0) {
+        if (Number(res[0]?.user_id) !== Number(userId)) {
+            ctx.app.emit("error", MomentErrorMessage.MOMENT_USER_NOT_PERMISSION, ctx)
+            return
         }
-        return
+        await next()
+    } else {
+        ctx.app.emit("error", MomentErrorMessage.MOMENT_NOT_EXIST, ctx)
     }
-    await next()
+}
+
+const createTableMiddleware = async (ctx, next) => {
+    try {
+        const res = await momentService.createTable()
+        await next()
+    } catch (error) {
+        ctx.app.emit("error", MomentErrorMessage.CREATE_MOMENT_TABLE_ERROR, ctx)
+    }
 }
 
 module.exports = {
-    verifyMomentPermissionMiddleware
+    verifyMomentPermissionMiddleware,
+    createTableMiddleware
 }

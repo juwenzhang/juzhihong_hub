@@ -26,31 +26,46 @@
 const KoaRouter = require('@koa/router');
 const momentController = require('../controllers/moment.controller');
 const { verifyToken } = require('../utils/token.util');
-const { verifyMomentPermissionMiddleware } = require("../middlewares/moment.middleware");
+const {
+    verifyMomentPermissionMiddleware,
+    createTableMiddleware
+} = require("../middlewares/moment.middleware");
 
 const MomentRouter  = new KoaRouter({ prefix: '/moment' });
 
 MomentRouter.post(
     '/publish',
+    createTableMiddleware,
     verifyToken,
     momentController.create
 );
 
 MomentRouter.get(
     '/commentList',
+    createTableMiddleware,
     momentController.getCommentList
 );
 
 MomentRouter.get(
     '/detail/:momentId',
+    createTableMiddleware,
     momentController.getMomentById
 );
 
 MomentRouter.patch(
     '/update/:momentId',
+    createTableMiddleware,
     verifyToken,
     verifyMomentPermissionMiddleware,
     momentController.updateComment
+)
+
+MomentRouter.delete(
+    '/delete/:momentId',
+    createTableMiddleware,
+    verifyToken,
+    verifyMomentPermissionMiddleware,
+    momentController.deleteComment
 )
 
 module.exports = MomentRouter;
