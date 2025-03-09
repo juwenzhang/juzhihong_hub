@@ -22,26 +22,9 @@
  * SOFTWARE.
  */
 
-const KoaRouter = require('@koa/router');
-const {
-    createTableMiddleware,
-} = require("../middlewares/label.middleware")
-const { verifyToken } = require("../utils/token.util")
-const labelController = require("../controllers/label.controller")
-
-const LabelRouter = new KoaRouter({prefix: '/labels'});
-
-LabelRouter.post(
-    "/create",
-    createTableMiddleware,
-    verifyToken,
-    labelController.create
-)
-
-LabelRouter.get(
-    "/list",
-    createTableMiddleware,
-    labelController.getList
-)
-
-module.exports = LabelRouter;
+module.exports = {
+    testEnvironment: "node",
+    coverageDirectory: "coverage",
+    collectCoverage: true,
+    collectCoverageFrom: ["./src/**/*.{js,ts}"],
+};

@@ -26,12 +26,14 @@ const UserRouter = require('./user.router');
 const MomentRouter = require('./moment.router');
 const CommentRouter = require('./comment.router');
 const LabelRouter = require('./label.router');
+const FileRouter = require('./file.router');
 
 const routers = [
     UserRouter,
     MomentRouter,
     CommentRouter,
-    LabelRouter
+    LabelRouter,
+    FileRouter,
 ];
 
 module.exports = {

@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-const connectPool = require('../middlewares/mysql.middleware');
 const connectionPool = require("../middlewares/mysql.middleware");
 
 class LabelService {
@@ -35,6 +34,15 @@ class LabelService {
                     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 );
+            `,
+            create_label: `
+                INSERT INTO label(name) VALUES (?);
+            `,
+            get_label_list: `
+                SELECT * FROM label LIMIT ?, ?;
+            `,
+            select_label_name: `
+                SELECT * FROM label WHERE name = ?;
             `
         }
     }
@@ -44,6 +52,51 @@ class LabelService {
             await connectionPool.execute(this.__statement.create_table)
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    async createLabel(ctx, labelName) {
+        try {
+            const [res] = await connectionPool.execute(
+                this.__statement.create_label,
+                [labelName]
+            )
+            return res;
+        } catch (error) {
+            ctx.body = {
+                code: 500,
+                message: '创建标签失败'
+            }
+        }
+    }
+
+    async getLabelList(ctx, page = "0", pageSize = "10") {
+        try {
+            const [res] = await connectionPool.execute(
+                this.__statement.get_label_list,
+                [page, pageSize]
+            )
+            return res;
+        } catch (error) {
+            ctx.body = {
+                code: 500,
+                message: '获取标签列表失败'
+            }
+        }
+    }
+
+    async getLabelByName(ctx, labelName){
+        try {
+            const [res] = await connectionPool.execute(
+                this.__statement.select_label_name,
+                [labelName]
+            )
+            return [!!res[0], res[0]?.id]
+        } catch (error) {
+            ctx.body = {
+                code: 500,
+                message: '服务器错误'
+            }
         }
     }
 }

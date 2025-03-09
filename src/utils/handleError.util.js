@@ -23,7 +23,7 @@
  */
 
 const app = require('../app/index.app')
-const { UserErrorMessages } = require("../constant/app.constant")
+const { UserErrorMessages, LabelErrorMessage} = require("../constant/app.constant")
 const { MomentErrorMessages } = require("../constant/app.constant")
 const { CommentErrorMessage } = require("../constant/app.constant")
 
@@ -133,6 +133,21 @@ app.on("error", (err, ctx) => {
             code = -1020
             message = "创建评论失败，请检查你的用户是否存在吧！！！"
             status = 500
+            break
+        case LabelErrorMessage.LABEL_IS_EXIST:
+            code = -1021
+            message = "标签已存在"
+            status = 409
+            break
+        case LabelErrorMessage.LABEL_NAMES_IS_REQUIRED:
+            code = -1022
+            message = "标签名不能为空"
+            status = 400
+            break
+        case LabelErrorMessage.LABEL_NAMES_IS_NOT_ARRAY:
+            code = -1023
+            message = "标签名必须是数组"
+            status = 400
             break
         default:
             break

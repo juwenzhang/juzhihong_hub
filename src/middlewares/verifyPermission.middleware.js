@@ -22,26 +22,13 @@
  * SOFTWARE.
  */
 
-const KoaRouter = require('@koa/router');
-const {
-    createTableMiddleware,
-} = require("../middlewares/label.middleware")
-const { verifyToken } = require("../utils/token.util")
-const labelController = require("../controllers/label.controller")
+const verifyPermissionMiddleware = async (ctx, next) => {
+    const { id } = ctx.user
+    const keyName = Object.keys(ctx.params)[0]
+    const tableName = keyName.replace("Id", "")
+    const resourceName = ctx.params[keyName]
+}
 
-const LabelRouter = new KoaRouter({prefix: '/labels'});
-
-LabelRouter.post(
-    "/create",
-    createTableMiddleware,
-    verifyToken,
-    labelController.create
-)
-
-LabelRouter.get(
-    "/list",
-    createTableMiddleware,
-    labelController.getList
-)
-
-module.exports = LabelRouter;
+module.exports = {
+    verifyPermissionMiddleware
+}

@@ -22,26 +22,18 @@
  * SOFTWARE.
  */
 
-const KoaRouter = require('@koa/router');
-const {
-    createTableMiddleware,
-} = require("../middlewares/label.middleware")
-const { verifyToken } = require("../utils/token.util")
-const labelController = require("../controllers/label.controller")
+const koaRouter = require('@koa/router')
+const {verifyToken} = require("../utils/token.util");
+const {handleAvatar} = require("../middlewares/file.middleware");
+const fileController = require("../controllers/file.controller");
 
-const LabelRouter = new KoaRouter({prefix: '/labels'});
+const FileRouter = new koaRouter({ prefix: '/file'})
 
-LabelRouter.post(
-    "/create",
-    createTableMiddleware,
+FileRouter.post(
+    '/upload',
     verifyToken,
-    labelController.create
+    handleAvatar,
+    fileController.uploadFile
 )
 
-LabelRouter.get(
-    "/list",
-    createTableMiddleware,
-    labelController.getList
-)
-
-module.exports = LabelRouter;
+module.exports = FileRouter

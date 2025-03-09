@@ -56,14 +56,16 @@ class UserService {
     }
 
     // create user method
-    async create(user) {
+    async create(user, ctx) {
         const { name, password } = user;
         try {
             const [res] = await connectionPool.execute(this.__statement.insert, [name, password])
             return res;
         } catch (error) {
-            console.log(error)
-            return null
+            ctx.body = {
+                code: 500,
+                message: "服务器错误"
+            };
         }
     }
 

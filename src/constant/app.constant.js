@@ -56,7 +56,10 @@ const CommentErrorMessage = {
 
 // label part
 const LabelErrorMessage = {
-    CREATE_LABEL_TABLE_ERROR: "create_label_table_error"
+    CREATE_LABEL_TABLE_ERROR: "create_label_table_error",
+    LABEL_IS_EXIST: "label_is_exist",
+    LABEL_NAMES_IS_REQUIRED: "label_names_is_required",
+    LABEL_NAMES_IS_NOT_ARRAY: "label_names_is_not_array"
 }
 
 module.exports = {

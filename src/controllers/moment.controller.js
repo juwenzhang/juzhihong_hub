@@ -138,6 +138,40 @@ class MomentController {
             }
         }
     }
+
+    async addLabels(ctx, next){
+        const { labelStatusSuccess, labelStatusFail, labelId } = ctx.labelStatus
+        const { momentId } = ctx.params
+        if (!momentId) {
+            ctx.app.emit(
+                'error', MomentErrorMessage.MOMENT_CONTENT_IS_REQUIRED,
+                ctx
+            )
+            return
+        }
+        for (let id of labelId) {
+            const isExist = await momentService.hasLabel(momentId, id)
+            if (!isExist) {
+                await momentService.addLabel(momentId, id)
+            }
+        }
+        ctx.body = {
+            code: 0,
+            msg: 'success',
+            status: 200,
+            ok: true,
+            desc: "添加标签成功",
+            data: {
+                momentId,
+                add_label_success: [
+                    ...labelStatusSuccess
+                ],
+                add_label_fail: [
+                    ...labelStatusFail
+                ]
+            }
+        }
+    }
 }
 
 const momentController = new MomentController();

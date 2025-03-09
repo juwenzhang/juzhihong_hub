@@ -1,5 +1,6 @@
-> * 接口文档地址: https://www.postman.com/juwenzhang/workspace/my-workspace/collection/39342202-4434e4f0-41dc-4c0d-9696-ce8cc7cbf1b9?action=share&creator=39342202&active-environment=39342202-30b25186-4f31-4a50-b13c-986a79831508
+> * 接口文档地址: https://www.postman.com/juwenzhang/workspace/juwenzhanghub
 > * 当然还在开发中，肯定是没有部署的呐，后面部署和开发好了后，文档自会更新😊😊😊
+> * 该仓库的接口文档的话，请看: `koa_server-collection`
 
 ## 数据库开发
 
@@ -9,6 +10,9 @@
 >   * 客户端判断该评论是否是二级评论的标志是服务端数据中的 `comment_id` 是否为 `null`
 
 ```sql
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS your_database_name;
+
 -- 创建 user 表，保存用户数据的表
 CREATE TABLE IF NOT EXISTS user (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,  
@@ -48,6 +52,30 @@ CREATE TABLE IF NOT EXISTS label(
     name VARCHAR(50) NOT NULL UNIQUE,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- label 和 moment 之间的关系表
+CREATE TABLE IF NOT EXISTS moment_label(
+	moment_id BIGINT NOT NULL,
+    label_id BIGINT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (moment_id, label_id),  -- 联合主键吧
+    FOREIGN KEY(label_id) REFERENCES label(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(moment_id) REFERENCES moment(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 头像信息表
+CREATE TABLE IF NOT EXISTS user_avatar(
+	id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    filename VARCHAR(255) UNIQUE,
+    encoding VARCHAR(50),
+    mimetype VARCHAR(30),
+    size BIGINT,
+    user_id BIGINT,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 ```
 
@@ -131,6 +159,8 @@ GROUP BY moment.id;
 * 使用的密码加密机制是: `bcryptjs`
 
 * 进行生成颁发 `token` 令牌方式，使用了秘钥对，使用的工具是: `openssl`
+
+* `multer @koa/multer` 实现的是对我们的 `file` 文件上传的依赖包是: `multer`
 
   * ```bash
     # 生成私钥

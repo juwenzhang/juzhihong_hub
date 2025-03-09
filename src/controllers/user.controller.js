@@ -33,7 +33,7 @@ class UserController {
         // get user info from ctx middleware
         const user = ctx.userInfo;
         // create user, save to db
-        const res = await userService.create(user)
+        const res = await userService.create(user, ctx)
         ctx.body = {
             code: 0,
             msg: 'success',

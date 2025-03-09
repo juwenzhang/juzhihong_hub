@@ -93,7 +93,8 @@ class MomentService {
                         'comment_update_time', comment.update_time
                     )
                 ) AS comment_infos,
-                (SELECT COUNT(*) FROM comment WHERE comment.moment_id = moment.id) AS comment_count
+                (SELECT COUNT(*) FROM comment WHERE comment.moment_id = moment.id) AS comment_count,
+                (SELECT COUNT(*) FROM moment_label WHERE moment_label.moment_id = ?) AS label_count
                 FROM moment 
                 LEFT JOIN user ON user.id = moment.user_id 
                 LEFT JOIN comment ON comment.moment_id = moment.id
@@ -109,7 +110,13 @@ class MomentService {
             `,
             get_user_id_by_id: `
                 SELECT * FROM moment WHERE id = ?;
-            `
+            `,
+            select_label_is_exist: `
+                SELECT * FROM moment_label WHERE moment_id = ? AND label_id = ?;
+            `,
+            insert_label: `
+                INSERT INTO moment_label (moment_id, label_id) VALUES(?, ?);
+            `,
         }
     }
 
@@ -143,7 +150,7 @@ class MomentService {
 
     async getMomentById(id) {
         try {
-            const [res] = await connectionPool.execute(this.__statement.select_comment_list_by_id, [id])
+            const [res] = await connectionPool.execute(this.__statement.select_comment_list_by_id, [id, id])
             return res;
         } catch (error) {
             console.log(error)
@@ -178,6 +185,30 @@ class MomentService {
         } catch (error) {
             console.log(error)
             return null
+        }
+    }
+
+    async hasLabel(moment_id, label_id, ctx){
+        const [res] = await connectionPool.execute(
+            this.__statement.select_label_is_exist,
+            [moment_id, label_id]
+        )
+        return !!res.length;
+    }
+
+    async addLabel(moment_id, label_id, ctx){
+        try {
+            const [res] = await connectionPool.execute(
+                this.__statement.insert_label,
+                [moment_id, label_id]
+            )
+            return res;
+        } catch (error) {
+            console.log(error)
+            ctx.body = {
+                code: 500,
+                message: "服务器错误"
+            }
         }
     }
 }

@@ -30,6 +30,9 @@ const {
     verifyMomentPermissionMiddleware,
     createTableMiddleware
 } = require("../middlewares/moment.middleware");
+const {
+    verifyLabelIsExistMiddleware, handleLabelMiddleware
+} = require("../middlewares/label.middleware");
 
 const MomentRouter  = new KoaRouter({ prefix: '/moment' });
 
@@ -66,6 +69,15 @@ MomentRouter.delete(
     verifyToken,
     verifyMomentPermissionMiddleware,
     momentController.deleteComment
+)
+
+MomentRouter.post(
+    '/:momentId/labels',
+    verifyToken,  // test token
+    verifyMomentPermissionMiddleware, // test permission
+    verifyLabelIsExistMiddleware, // test label is exist
+    handleLabelMiddleware,
+    momentController.addLabels
 )
 
 module.exports = MomentRouter;

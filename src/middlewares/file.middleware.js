@@ -21,27 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-const KoaRouter = require('@koa/router');
-const {
-    createTableMiddleware,
-} = require("../middlewares/label.middleware")
-const { verifyToken } = require("../utils/token.util")
-const labelController = require("../controllers/label.controller")
-
-const LabelRouter = new KoaRouter({prefix: '/labels'});
-
-LabelRouter.post(
-    "/create",
-    createTableMiddleware,
-    verifyToken,
-    labelController.create
+const multer = require("@koa/multer");
+const uploadAvatar = multer(
+    { dest: './uploads/avatars' }
 )
 
-LabelRouter.get(
-    "/list",
-    createTableMiddleware,
-    labelController.getList
-)
+const handleAvatar = uploadAvatar.single('avatar')
 
-module.exports = LabelRouter;
+module.exports = {
+    handleAvatar
+}

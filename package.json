@@ -19,11 +19,13 @@
     "start": "nodemon ./src/main.js",
     "build": "tsc",
     "lint": "tslint -p tsconfig.json",
+    "test": "jest",
     "ts-start": "ts-node-dev --respawn --transpile-only src/index.ts"
   },
   "devDependencies": {
     "@types/koa": "^2.15.0",
     "@types/node": "^22.13.9",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
@@ -31,6 +33,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@koa/multer": "^3.0.2",
     "@koa/router": "^13.1.0",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
@@ -39,6 +42,7 @@
     "koa": "^2.16.0",
     "koa-bodyparser": "^4.4.1",
     "koa-session": "^7.0.2",
+    "multer": "^1.4.5-lts.1",
     "mysql2": "^3.12.0"
   }
 }

@@ -22,26 +22,30 @@
  * SOFTWARE.
  */
 
-const KoaRouter = require('@koa/router');
-const {
-    createTableMiddleware,
-} = require("../middlewares/label.middleware")
-const { verifyToken } = require("../utils/token.util")
-const labelController = require("../controllers/label.controller")
+class FileController {
+    async uploadFile(ctx, next) {
+        try {
+            const { file } = ctx.request;
+            console.log(file);
+            ctx.body = {
+                status: 200,
+                message: "success upload avatar",
+                data: {
+                    url: `http://localhost:8000/uploads/${file.filename}`,
+                },
+            };
+        } catch (error) {
+            console.log(error);
+            ctx.body = {
+                status: 500,
+                message: "fail upload avatar",
+                data: {
+                    url: "",
+                },
+            };
+        }
+    }
+}
 
-const LabelRouter = new KoaRouter({prefix: '/labels'});
-
-LabelRouter.post(
-    "/create",
-    createTableMiddleware,
-    verifyToken,
-    labelController.create
-)
-
-LabelRouter.get(
-    "/list",
-    createTableMiddleware,
-    labelController.getList
-)
-
-module.exports = LabelRouter;
+const fileController = new FileController();
+module.exports = fileController;

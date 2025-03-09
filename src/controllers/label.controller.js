@@ -22,8 +22,47 @@
  * SOFTWARE.
  */
 
+const labelService = require("../services/label.service");
 class LabelController{
+    async create(ctx, next) {
+        const { labelName } = ctx.request.body;
+        const res = await labelService.createLabel(ctx, labelName);
+        if (res) {
+            ctx.body = {
+                code: 0,
+                message: "label创建成功",
+                data: res
+            }
+        } else {
+            ctx.body = {
+                code: 0,
+                message: "label创建失败",
+            }
+        }
+    }
 
+    async getList(ctx, next) {
+        const { page, pageSize } = ctx.query
+        let res;
+        if (page && pageSize) {
+            res = await labelService.getLabelList(ctx, page, pageSize);
+        } else {
+            res = await labelService.getLabelList(ctx);
+        }
+        if (res) {
+            ctx.body = {
+                code: 0,
+                message: "label获取成功",
+                data: res
+            }
+        } else {
+            ctx.body = {
+                code: 0,
+                message: "label获取失败",
+                data: res
+            }
+        }
+    }
 }
 
 const labelController = new LabelController();
