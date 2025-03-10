@@ -16,11 +16,14 @@
   "type": "commonjs",
   "main": "src/main.js",
   "scripts": {
-    "start": "nodemon ./src/main.js",
-    "build": "tsc",
-    "lint": "tslint -p tsconfig.json",
-    "test": "jest",
-    "ts-start": "ts-node-dev --respawn --transpile-only src/index.ts"
+    "start:nodemon": "npx nodemon ./src/main.js",
+    "start:node": "npx node ./src/main.js",
+    "start:pm2": "npx pm2 start ./src/main.js --watch",
+    "show:list": "npx pm2 list",
+    "build": "npx tsc",
+    "lint": "npx tslint -p tsconfig.json",
+    "test": "npx jest",
+    "ts-start": "npx ts-node-dev --respawn --transpile-only src/index.ts"
   },
   "devDependencies": {
     "@types/koa": "^2.15.0",
@@ -43,6 +46,7 @@
     "koa-bodyparser": "^4.4.1",
     "koa-session": "^7.0.2",
     "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.12.0"
+    "mysql2": "^3.12.0",
+    "pm2": "^5.4.3"
   }
 }

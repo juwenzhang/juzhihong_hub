@@ -22,14 +22,8 @@
  * SOFTWARE.
  */
 
-const { UPLOAD_AVATAR_PATH } = require("../config/path.config")
-const multer = require("@koa/multer");
-const uploadAvatar = multer(
-    { dest: UPLOAD_AVATAR_PATH }
-)
-
-const handleAvatar = uploadAvatar.single('avatar')
+const UPLOAD_AVATAR_PATH = './uploads/avatars';
 
 module.exports = {
-    handleAvatar
+    UPLOAD_AVATAR_PATH
 }

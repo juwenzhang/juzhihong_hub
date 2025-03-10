@@ -35,6 +35,7 @@ const {
     userIsInDbMiddleware,  // to ensure the user info has existed in db
     createTableMiddleware  // to ensure the table has created
 } = require('../middlewares/user.middleware');
+const {verifyToken} = require("../utils/token.util");
 
 // define-router part
 const UserRouter = new KoaRouter({prefix: '/user'});
@@ -59,6 +60,11 @@ UserRouter.post(
     userInfoHasAllFieldsMiddleware,
     userIsInDbMiddleware,
     userController.login  // login user
+)
+
+UserRouter.get(
+    '/avatar/:userId',
+    userController.getAvatarByUserID  // get user avatar  // get user info
 )
 
 // export-router part

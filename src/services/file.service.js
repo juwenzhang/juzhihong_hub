@@ -22,37 +22,18 @@
  * SOFTWARE.
  */
 
-const fileService = require("../services/file.service");
-const userService = require("../services/user.service");
-const { SERVER_URL } = require("../config/server.config");
-class FileController {
-    async uploadFile(ctx, next) {
+const connectionPool = require('../middlewares/mysql.middleware');
+class FileService {
+    async uploadFile(filename, encoding, mimetype, size, user_id, ctx){
+        const statement = `
+            INSERT INTO user_avatar(filename, encoding, mimetype, size, user_id) VALUES (?, ?, ?, ?, ?) 
+        `
         try {
-            const { file } = ctx.request;
-            const {
-                filename,
-                encoding,
-                mimetype,
-                size
-            } = file
-            const user_id = ctx.user.id;
-            const res = await fileService.uploadFile(
-                filename, encoding, mimetype, size, user_id, ctx
-            )
-            const res2 = await userService.updateUserAvatarUrl(
-                `${SERVER_URL}/user/avatar/${user_id}`, user_id, ctx
-            )
-            ctx.body = {
-                status: 200,
-                message: "success upload avatar",
-                data: {
-                    filename,
-                    encoding,
-                    mimetype,
-                    size,
-                    ...res
-                },
-            };
+            const [result] = await connectionPool.execute(
+                statement,
+                [filename, encoding, mimetype, size, user_id]
+            );
+            return result;
         } catch (error) {
             console.log(error);
             ctx.body = {
@@ -64,7 +45,29 @@ class FileController {
             };
         }
     }
+
+    async getAvatarByUserID(user_id, ctx){
+        const statement = `
+            SELECT * FROM user_avatar WHERE user_id = ?
+        `
+        try {
+            const [res] = await connectionPool.execute(
+                statement,
+                [user_id]
+            );
+            return res[res.length - 1];
+        } catch (error) {
+            console.log(error);
+            ctx.body = {
+                status: 500,
+                message: "fail get avatar",
+                data: {
+                    url: "",
+                },
+            };
+        }
+    }
 }
 
-const fileController = new FileController();
-module.exports = fileController;
+const fileService = new FileService();
+module.exports = fileService;

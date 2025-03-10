@@ -80,6 +80,28 @@ class UserService {
             return null
         }
     }
+
+    async updateUserAvatarUrl(avatar_url, userId, ctx){
+        const statement = `
+            UPDATE user SET avatar_url = ? WHERE id = ?;
+        `
+        try {
+            const [res] = await connectionPool.execute(
+                statement,
+                [avatar_url, userId]
+            );
+            return res;
+        } catch (error) {
+            console.log(error);
+            ctx.body = {
+                status: 500,
+                message: "fail update avatar url",
+                data: {
+                    avatar_url: "",
+                },
+            };
+        }
+    }
 }
 
 const userService = new UserService();

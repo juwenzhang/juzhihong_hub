@@ -27,6 +27,9 @@ const matchPwdUtil = require('../utils/matchPwd.util');
 const redisConnection = require('../middlewares/redis.middlwware')
 const { UserErrorMessages } = require("../constant/app.constant");
 const { storeToken } = require("../utils/token.util")
+const {getAvatarByUserID} = require("../services/file.service");
+const {createReadStream} = require("node:fs");
+const { UPLOAD_AVATAR_PATH } = require("../config/path.config")
 
 class UserController {
     async create(ctx, next) {
@@ -95,6 +98,17 @@ class UserController {
         } else {
             ctx.app.emit("error", UserErrorMessages.USER_PASSWORD_IS_INCORRECT, ctx)
         }
+    }
+
+    async getAvatarByUserID(ctx, next){
+        const { userId } = ctx.params
+        const avatarInfo = await getAvatarByUserID(userId, ctx)
+        const {
+            filename,
+            mimetype
+        } = avatarInfo
+        ctx.type = mimetype
+        ctx.body = createReadStream(`${UPLOAD_AVATAR_PATH}/${filename}`)
     }
 }
 

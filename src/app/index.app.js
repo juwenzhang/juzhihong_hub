@@ -27,12 +27,14 @@ const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const { routers } = require('../routers/index.router')
 const { RegisterRoutesUtil } = require("../utils/router.util")
+const initDatabase = require('../utils/initDatabase.util')
 
 // init-part
 const app = new Koa();
 
 // middleware-part
 app.use(bodyParser())
+initDatabase()
 
 // register-router-part
 RegisterRoutesUtil(app, routers)

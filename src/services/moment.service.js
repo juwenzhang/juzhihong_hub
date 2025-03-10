@@ -48,7 +48,8 @@ class MomentService {
                     'user_id', user.id, 
                     'user_name', user.name, 
                     'user_create_time', user.create_time, 
-                    'user_update_time', user.update_time
+                    'user_update_time', user.update_time,
+                    'user_avatar_url', user.avatar_url
                 ) AS user_info,
                 JSON_OBJECT(
                     'moment_id', moment.id,
@@ -67,7 +68,8 @@ class MomentService {
                 JSON_OBJECT(
                     'user_name', user.name,
                     'user_create_time', user.create_time,
-                    'user_update_time', user.update_time
+                    'user_update_time', user.update_time,
+                    'user_avatar_url', user.avatar_url
                 ) AS user_info,
                 JSON_OBJECT(
                     'moment_id', moment.id,
