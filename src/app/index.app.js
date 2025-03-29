@@ -28,12 +28,22 @@ const bodyParser = require('koa-bodyparser');
 const { routers } = require('../routers/index.router')
 const { RegisterRoutesUtil } = require("../utils/router.util")
 const initDatabase = require('../utils/initDatabase.util')
+const cors = require('@koa/cors');
 
 // init-part
 const app = new Koa();
 
 // middleware-part
 app.use(bodyParser())
+app.use(cors({
+    origin: '*',  // 允许所有的源进行访问
+    credentials: true,  // 允许携带cookie
+    allowHeaders: ['*'],  // 允许的请求头
+    exposeHeaders: ['*'],  // 允许的响应头
+    allowMethods: ['*'],
+    maxAge: 86400,
+    allowCredentials: true,
+}))
 initDatabase()
 
 // register-router-part
